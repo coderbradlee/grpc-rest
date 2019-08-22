@@ -3,6 +3,7 @@ package main
 import (
 	"context" // Use "golang.org/x/net/context" for Golang version <= 1.6
 	"flag"
+	"fmt"
 	"net/http"
 
 	"github.com/golang/glog"
@@ -18,6 +19,21 @@ var (
 	grpcServerEndpoint = flag.String("grpc-server-endpoint", "api.testnet.iotex.one:80", "gRPC server endpoint")
 )
 
+func allowCORS(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//if origin := r.Header.Get("Origin"); origin != "" {
+		//	w.Header().Set("Access-Control-Allow-Origin", origin)
+		//	if r.Method == "OPTIONS" && r.Header.Get("Access-Control-Request-Method") != "" {
+		//		return
+		//	}
+		//}
+		kv := r.URL.Query()
+		for k, v := range kv {
+			fmt.Println(k, ":", v)
+		}
+		h.ServeHTTP(w, r)
+	})
+}
 func run() error {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
@@ -33,7 +49,13 @@ func run() error {
 	}
 
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
-	return http.ListenAndServe(":8081", mux)
+	//return http.ListenAndServe(":8081", mux)
+	s := &http.Server{
+		Addr:    ":8081",
+		Handler: allowCORS(mux),
+	}
+	return s.ListenAndServe()
+
 }
 
 func main() {

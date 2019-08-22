@@ -10,7 +10,6 @@ package iotexapi
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -147,6 +146,26 @@ func request_APIService_ReadContract_0(ctx context.Context, marshaler runtime.Ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
 	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.ReadContract(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+var (
+	filter_APIService_ReadContract_1 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_APIService_ReadContract_1(ctx context.Context, marshaler runtime.Marshaler, client APIServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ReadContractRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_APIService_ReadContract_1); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -515,11 +534,7 @@ func RegisterAPIServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("GET", pattern_APIService_ReadContract_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		for k,v:=range pathParams{
-			fmt.Println(k,":",v)
-		}
-		fmt.Println("empty?")
+	mux.Handle("POST", pattern_APIService_ReadContract_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -539,7 +554,11 @@ func RegisterAPIServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("POST", pattern_APIService_ReadContract_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_APIService_ReadContract_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		for k,v:=range pathParams{
+			fmt.Println(k,":",v)
+		}
+		fmt.Println("empty?")
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -548,14 +567,14 @@ func RegisterAPIServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_APIService_ReadContract_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_APIService_ReadContract_1(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_APIService_ReadContract_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_APIService_ReadContract_1(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -818,6 +837,8 @@ var (
 	forward_APIService_GetReceiptByAction_0 = runtime.ForwardResponseMessage
 
 	forward_APIService_ReadContract_0 = runtime.ForwardResponseMessage
+
+	forward_APIService_ReadContract_1 = runtime.ForwardResponseMessage
 
 	forward_APIService_SuggestGasPrice_0 = runtime.ForwardResponseMessage
 

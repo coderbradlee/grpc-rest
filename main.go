@@ -91,17 +91,23 @@ func sendTransfer(r *http.Request) {
 		Signature    []byte      `json:"signature,omitempty"`
 	}
 
-	senderPubKey, err := base64.StdEncoding.DecodeString(kv.Get("senderPubKey"))
+	senderPubKeyString := kv.Get("senderPubKey")
+	senderPubKeyString = strings.ReplaceAll(senderPubKeyString, " ", "+")
+	senderPubKey, err := base64.StdEncoding.DecodeString(senderPubKeyString)
 	if err != nil {
 		fmt.Println("b", err)
 		return
 	}
-	signature, err := base64.StdEncoding.DecodeString(kv.Get("signature"))
+	signatureString := kv.Get("signature")
+	signatureString = strings.ReplaceAll(signatureString, " ", "+")
+	signature, err := base64.StdEncoding.DecodeString(signatureString)
 	if err != nil {
 		fmt.Println("b", err)
 		return
 	}
-	payload, err := base64.StdEncoding.DecodeString(kv.Get("payload"))
+	payloadString := kv.Get("payload")
+	payloadString = strings.ReplaceAll(payloadString, " ", "+")
+	payload, err := base64.StdEncoding.DecodeString(payloadString)
 	if err != nil {
 		fmt.Println("b", err)
 		return

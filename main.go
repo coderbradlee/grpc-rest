@@ -6,8 +6,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io/ioutil"
+
+	"github.com/lzxm160/grpc-rest/golang/iotexapi"
 
 	"net/http"
 
@@ -36,22 +37,58 @@ func filter(h http.Handler) http.Handler {
 		if r.Method == "GET" {
 			switch r.URL.Path {
 			case "/v1/readContract":
-				changeQueryToBody(r)
+				readContract(r)
+			case "/v1/getLogs/byBlock":
+				getLogsByBlock(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
 }
-
-func changeQueryToBody(r *http.Request) {
+func getLogsByBlock(r *http.Request) {
 	kv := r.URL.Query()
-	for k, v := range kv {
-		fmt.Println(k, ":", v)
-	}
-	fmt.Println("empty?")
 	r.Method = "POST"
-	//{"execution":{"amount":"0","contract":"io1hhu3gwt5uankzl3zlp2cz8w0sl9uj336rq0334","data":"Bv3eAw=="}, "callerAddress": "io1vdtfpzkwpyngzvx7u2mauepnzja7kd5rryp0sg"}
+	data := kv.Get("topics")
+	decodeBytes, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return
+	}
+	blockHashBytes, err := base64.StdEncoding.DecodeString(kv.Get("blockHash"))
+	if err != nil {
+		return
+	}
+	topic := []*iotexapi.Topics{
+		&iotexapi.Topics{
+			Topic: [][]byte{decodeBytes},
+		},
+	}
+	req := &iotexapi.GetLogsRequest{
+		Filter: &iotexapi.LogsFilter{
+			Address: []string(kv.Get("address")),
+			Topics:  topic,
+		},
+		Lookup: &iotexapi.GetLogsRequest_ByBlock{
+			ByBlock: &iotexapi.GetLogsByBlock{
+				BlockHash: blockHashBytes,
+			},
+		},
+		//Lookup: &iotexapi.GetLogsRequest_ByRange{
+		//	ByRange: &iotexapi.GetLogsByRange{
+		//		FromBlock: test.fromBlock,
+		//		Count:     test.count,
+		//	},
+		//},
+	}
+	reqBytes, err := json.Marshal(req)
+	if err != nil {
+		return
+	}
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+}
+func readContract(r *http.Request) {
+	kv := r.URL.Query()
+	r.Method = "POST"
 	data := kv.Get("data")
 	decodeBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
@@ -69,7 +106,6 @@ func changeQueryToBody(r *http.Request) {
 	if err != nil {
 		return
 	}
-	fmt.Println("req:", string(reqBytes))
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
 }
 func run() error {

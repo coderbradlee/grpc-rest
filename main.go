@@ -62,11 +62,47 @@ func filter(h http.Handler) http.Handler {
 				getActionsByAddr(r)
 			case "/v1/getActions/unconfirmedByAddr":
 				getActionsUnconfirmedByAddr(r)
+			case "/v1/getActions/byBlk":
+				getActionsByBlk(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
+}
+func getActionsByBlk(r *http.Request) {
+	kv := r.URL.Query()
+	r.Method = "POST"
+	var reqBytes []byte
+	var err error
+	type byAddrStruct struct {
+		ByBlk *gw.GetActionsByBlockRequest `json:"byBlk,omitempty"`
+	}
+	start, err := strconv.ParseUint(kv.Get("start"), 10, 64)
+	if err != nil {
+		return
+	}
+	count, err := strconv.ParseUint(kv.Get("count"), 10, 64)
+	if err != nil {
+		return
+	}
+	req := &byAddrStruct{
+		ByBlk: &gw.GetActionsByBlockRequest{
+			BlkHash: kv.Get("blkHash"),
+			Start:   start,
+			Count:   count,
+		},
+	}
+	fmt.Println(req)
+	reqBytes, err = json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
+	}
+
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/getActions"
 }
 func getActionsUnconfirmedByAddr(r *http.Request) {
 	kv := r.URL.Query()

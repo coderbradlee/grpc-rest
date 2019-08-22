@@ -20,4 +20,4 @@ require (
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 	honnef.co/go/tools v0.0.1-2019.2.2 // indirect
 )
-replace github.com/iotexproject/iotex-proto => github.com/lzxm160/grpc-rest
+replace github.com/iotexproject/iotex-proto => ./

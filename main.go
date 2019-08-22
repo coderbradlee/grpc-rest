@@ -69,14 +69,14 @@ func getActionsByHash(r *http.Request) {
 	r.Method = "POST"
 	var reqBytes []byte
 	var err error
-	type byIndexStruct struct {
+	type byHashStruct struct {
 		ByHash *gw.GetActionByHashRequest `json:"byHash,omitempty"`
 	}
 	var chekpending bool
-	if strings.EqualFold(kv.Get("checkpending"), "true") {
+	if strings.EqualFold(kv.Get("checkPending"), "true") {
 		chekpending = true
 	}
-	req := &byIndexStruct{
+	req := &byHashStruct{
 		ByHash: &gw.GetActionByHashRequest{
 			ActionHash:   kv.Get("actionHash"),
 			CheckPending: chekpending,

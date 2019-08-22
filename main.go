@@ -90,7 +90,7 @@ func sendAction(r *http.Request) {
 		fmt.Println("b", err)
 		return
 	}
-	req := &gw.sendActionStruct{
+	req := &sendActionStruct{
 		Core: &iotextypes.ActionCore{
 			Version:  version,
 			Nonce:    nonce,

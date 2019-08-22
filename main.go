@@ -55,55 +55,69 @@ func filter(h http.Handler) http.Handler {
 			case "/v1/sendAction/execution":
 				sendExecution(r)
 			case "/v1/getActions/byIndex":
-				getActionsByIndex(r, true)
+				getActionsByIndex(r)
+			case "/v1/getActions/byHash":
+				getActionsByHash(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
 }
-func getActionsByIndex(r *http.Request, byIndex bool) {
+func getActionsByHash(r *http.Request) {
 	kv := r.URL.Query()
 	r.Method = "POST"
 	var reqBytes []byte
 	var err error
-	if byIndex {
-		type byIndexStruct struct {
-			ByIndex *gw.GetActionsByIndexRequest `json:"byIndex,omitempty"`
-		}
-		start, err := strconv.ParseUint(kv.Get("start"), 10, 64)
-		if err != nil {
-			return
-		}
-		count, err := strconv.ParseUint(kv.Get("count"), 10, 64)
-		if err != nil {
-			return
-		}
-		req := &byIndexStruct{
-			ByIndex: &gw.GetActionsByIndexRequest{
-				Start: start,
-				Count: count,
-			},
-		}
-		reqBytes, err = json.Marshal(req)
-		if err != nil {
-			fmt.Println("c", err)
-			return
-		}
-	} else {
-		type byHashStruct struct {
-			ByHash *gw.GetBlockMetaByHashRequest `json:"byHash,omitempty"`
-		}
-		req := &byHashStruct{
-			ByHash: &gw.GetBlockMetaByHashRequest{
-				BlkHash: kv.Get("blkHash"),
-			},
-		}
-		reqBytes, err = json.Marshal(req)
-		if err != nil {
-			fmt.Println("c", err)
-			return
-		}
+	type byIndexStruct struct {
+		ByHash *gw.GetActionByHashRequest `json:"byHash,omitempty"`
+	}
+	var chekpending bool
+	if strings.EqualFold(kv.Get("checkpending"), "true") {
+		chekpending = true
+	}
+	req := &byIndexStruct{
+		ByHash: &gw.GetActionByHashRequest{
+			ActionHash:   kv.Get("actionHash"),
+			CheckPending: chekpending,
+		},
+	}
+	reqBytes, err = json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
+	}
+
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/getActions"
+}
+func getActionsByIndex(r *http.Request) {
+	kv := r.URL.Query()
+	r.Method = "POST"
+	var reqBytes []byte
+	var err error
+	type byIndexStruct struct {
+		ByIndex *gw.GetActionsByIndexRequest `json:"byIndex,omitempty"`
+	}
+	start, err := strconv.ParseUint(kv.Get("start"), 10, 64)
+	if err != nil {
+		return
+	}
+	count, err := strconv.ParseUint(kv.Get("count"), 10, 64)
+	if err != nil {
+		return
+	}
+	req := &byIndexStruct{
+		ByIndex: &gw.GetActionsByIndexRequest{
+			Start: start,
+			Count: count,
+		},
+	}
+	reqBytes, err = json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
 	}
 
 	fmt.Println(string(reqBytes))

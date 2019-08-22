@@ -46,11 +46,55 @@ func filter(h http.Handler) http.Handler {
 				getLogsByRange(r)
 			case "/v1/streamLogs":
 				streamlogs(r)
+			case "/v1/getBlockMetas/byIndex":
+
+			case "/v1/getBlockMetas/byHash":
+
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
+}
+func getBlockMetas(r *http.Request, byIndex bool) {
+	kv := r.URL.Query()
+	r.Method = "POST"
+	var reqBytes []byte
+	var err error
+	if byIndex {
+		type byIndexStruct struct {
+			ByIndex *gw.GetBlockMetasByIndexRequest `json:"byIndex,omitempty"`
+		}
+		req := &byIndexStruct{
+			ByIndex: &gw.GetBlockMetasByIndexRequest{
+				Start: kv.Get("start"),
+				Count: kv.Get("count"),
+			},
+		}
+		reqBytes, err = json.Marshal(req)
+		if err != nil {
+			fmt.Println("c", err)
+			return
+		}
+	} else {
+		type byHashStruct struct {
+			ByHash *gw.GetBlockMetaByHashRequest `json:"byHash,omitempty"`
+		}
+		req := &byHashStruct{
+			ByHash: &gw.GetBlockMetaByHashRequest{
+				BlkHash: kv.Get("blkHash"),
+			},
+		}
+		reqBytes, err = json.Marshal(req)
+		if err != nil {
+			fmt.Println("c", err)
+			return
+		}
+	}
+
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/getBlockMetas"
 }
 func streamlogs(r *http.Request) {
 	kv := r.URL.Query()

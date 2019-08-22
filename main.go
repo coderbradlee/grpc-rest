@@ -82,6 +82,7 @@ func getActionsByHash(r *http.Request) {
 			CheckPending: chekpending,
 		},
 	}
+	fmt.Println(req)
 	reqBytes, err = json.Marshal(req)
 	if err != nil {
 		fmt.Println("c", err)

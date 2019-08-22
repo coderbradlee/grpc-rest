@@ -519,6 +519,7 @@ func RegisterAPIServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		for k,v:=range pathParams{
 			fmt.Println(k,":",v)
 		}
+		fmt.Println("empty?")
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)

@@ -58,11 +58,47 @@ func filter(h http.Handler) http.Handler {
 				getActionsByIndex(r)
 			case "/v1/getActions/byHash":
 				getActionsByHash(r)
+			case "/v1/getActions/byAddr":
+				getActionsByAddr(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
+}
+func getActionsByAddr(r *http.Request) {
+	kv := r.URL.Query()
+	r.Method = "POST"
+	var reqBytes []byte
+	var err error
+	type byAddrStruct struct {
+		ByAddr *gw.GetActionsByAddressRequest `json:"byAddr,omitempty"`
+	}
+	start, err := strconv.ParseUint(kv.Get("start"), 10, 64)
+	if err != nil {
+		return
+	}
+	count, err := strconv.ParseUint(kv.Get("count"), 10, 64)
+	if err != nil {
+		return
+	}
+	req := &byAddrStruct{
+		ByAddr: &gw.GetActionsByAddressRequest{
+			Address: kv.Get("address"),
+			Start:   start,
+			Count:   count,
+		},
+	}
+	fmt.Println(req)
+	reqBytes, err = json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
+	}
+
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/getActions"
 }
 func getActionsByHash(r *http.Request) {
 	kv := r.URL.Query()

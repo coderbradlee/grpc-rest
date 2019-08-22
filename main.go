@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/lzxm160/grpc-rest/golang/iotexapi"
@@ -84,6 +85,7 @@ func getLogsByBlock(r *http.Request) {
 	if err != nil {
 		return
 	}
+	fmt.Println(string(reqBytes))
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
 }
 func readContract(r *http.Request) {

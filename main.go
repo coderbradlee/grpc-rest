@@ -112,20 +112,25 @@ func sendTransfer(r *http.Request) {
 		fmt.Println("b", err)
 		return
 	}
-	req := &sendActionStruct{
-		Core: &actionCore{
-			Version:  uint32(version),
-			Nonce:    nonce,
-			GasLimit: gasLimit,
-			GasPrice: kv.Get("gasPrice"),
-			Transfer: &iotextypes.Transfer{
-				Amount:    kv.Get("amount"),
-				Recipient: kv.Get("recipient"),
-				Payload:   payload,
+	type SendActionRequest struct {
+		Action *sendActionStruct `json:"action,omitempty"`
+	}
+	req := &SendActionRequest{
+		Action:&sendActionStruct{
+			Core: &actionCore{
+				Version:  uint32(version),
+				Nonce:    nonce,
+				GasLimit: gasLimit,
+				GasPrice: kv.Get("gasPrice"),
+				Transfer: &iotextypes.Transfer{
+					Amount:    kv.Get("amount"),
+					Recipient: kv.Get("recipient"),
+					Payload:   payload,
+				},
 			},
-		},
-		SenderPubKey: senderPubKey,
-		Signature:    signature,
+			SenderPubKey: senderPubKey,
+			Signature:    signature,
+		}
 	}
 
 	reqBytes, err := json.Marshal(req)

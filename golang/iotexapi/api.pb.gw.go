@@ -515,7 +515,7 @@ func RegisterAPIServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("GET", pattern_APIService_ReadContract_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_APIService_ReadContract_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		for k,v:=range pathParams{
 			fmt.Println(k,":",v)
 		}
@@ -777,6 +777,8 @@ var (
 	pattern_APIService_GetReceiptByAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "getReceiptByAction"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_APIService_ReadContract_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "readContract"}, "", runtime.AssumeColonVerbOpt(true)))
+
+	pattern_APIService_ReadContract_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "readContract"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_APIService_SuggestGasPrice_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "suggestGasPrice"}, "", runtime.AssumeColonVerbOpt(true)))
 

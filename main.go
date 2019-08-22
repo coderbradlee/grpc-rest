@@ -47,9 +47,9 @@ func filter(h http.Handler) http.Handler {
 			case "/v1/streamLogs":
 				streamlogs(r)
 			case "/v1/getBlockMetas/byIndex":
-
+				getBlockMetas(r, true)
 			case "/v1/getBlockMetas/byHash":
-
+				getBlockMetas(r, false)
 			}
 		}
 

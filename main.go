@@ -52,11 +52,11 @@ func changeQueryToBody(r *http.Request) {
 	//{"execution":{"amount":"0","contract":"io1hhu3gwt5uankzl3zlp2cz8w0sl9uj336rq0334","data":"Bv3eAw=="}, "callerAddress": "io1vdtfpzkwpyngzvx7u2mauepnzja7kd5rryp0sg"}
 	req := gw.ReadContractRequest{
 		Execution: &iotextypes.Execution{
-			Amount:   kv.Get("amount")[0],
-			Contract: kv.Get("data")[0],
-			Data:     kv.Get("data")[0],
+			Amount:   kv.Get("amount"),
+			Contract: kv.Get("data"),
+			Data:     kv.Get("data"),
 		},
-		CallerAddress: kv.Get("callerAddress")[0],
+		CallerAddress: kv.Get("callerAddress"),
 	}
 	reqBytes, err := json.Marshal(req)
 	if err != nil {

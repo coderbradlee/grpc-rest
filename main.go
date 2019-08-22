@@ -44,11 +44,57 @@ func filter(h http.Handler) http.Handler {
 				getLogsByBlock(r)
 			case "/v1/getLogs/byRange":
 				getLogsByRange(r)
+			case "/v1/streamLogs":
+				streamlogs(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
+}
+func streamlogs(r *http.Request) {
+	kv := r.URL.Query()
+	r.Method = "POST"
+	data := kv.Get("topics")
+	var decodeBytes []byte
+	var err error
+	if !strings.EqualFold(data, "") {
+		decodeBytes, err = base64.StdEncoding.DecodeString(data)
+		if err != nil {
+			fmt.Println("a", err)
+			return
+		}
+	}
+
+	var topic []*gw.Topics
+	if len(decodeBytes) != 0 {
+		topic = []*gw.Topics{
+			&gw.Topics{
+				Topic: [][]byte{decodeBytes},
+			},
+		}
+	}
+	address := kv.Get("address")
+
+	type reqStruct struct {
+		Filter  *gw.LogsFilter `json:"filter,omitempty"`
+		Address string         `json:"address,omitempty"`
+	}
+	req := &reqStruct{
+		Filter: &gw.LogsFilter{
+			Address: []string{kv.Get("address")},
+			Topics:  topic,
+		},
+		Address: address,
+	}
+
+	reqBytes, err := json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
+	}
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
 }
 func getLogsByRange(r *http.Request) {
 	kv := r.URL.Query()

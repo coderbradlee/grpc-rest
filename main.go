@@ -68,11 +68,15 @@ func getLogsByBlock(r *http.Request) {
 		fmt.Println("b", err)
 		return
 	}
-	topic := []*gw.Topics{
-		&gw.Topics{
-			Topic: [][]byte{decodeBytes},
-		},
+	var topic []*gw.Topics
+	if len(decodeBytes) != 0 {
+		topic = []*gw.Topics{
+			&gw.Topics{
+				Topic: [][]byte{decodeBytes},
+			},
+		}
 	}
+
 	type reqStruct struct {
 		Filter  *gw.LogsFilter     `json:"filter,omitempty"`
 		ByBlock *gw.GetLogsByBlock `json:"byBlock,omitempty"`

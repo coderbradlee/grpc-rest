@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"strings"
 
 	"io/ioutil"
 
@@ -50,14 +51,19 @@ func getLogsByBlock(r *http.Request) {
 	kv := r.URL.Query()
 	r.Method = "POST"
 	data := kv.Get("topics")
-	decodeBytes, err := base64.StdEncoding.DecodeString(data)
-	if err != nil {
-		fmt.Println(err)
-		return
+	var decodeBytes []byte
+	var err error
+	if !strings.EqualFold(data, "") {
+		decodeBytes, err = base64.StdEncoding.DecodeString(data)
+		if err != nil {
+			fmt.Println("a", err)
+			return
+		}
 	}
+
 	blockHashBytes, err := base64.StdEncoding.DecodeString(kv.Get("blockHash"))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("b", err)
 		return
 	}
 	topic := []*gw.Topics{
@@ -84,7 +90,7 @@ func getLogsByBlock(r *http.Request) {
 	}
 	reqBytes, err := json.Marshal(req)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("c", err)
 		return
 	}
 	fmt.Println(string(reqBytes))

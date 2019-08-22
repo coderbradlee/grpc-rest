@@ -68,13 +68,82 @@ func filter(h http.Handler) http.Handler {
 				sendTransfer(r, true)
 			case "/v1/estimateGasForAction/execution":
 				sendExecution(r, true)
+			case "/v1/estimateActionGasConsumption/transfer":
+				estimateTransferGasConsumption(r)
+			case "/v1/estimateActionGasConsumption/execution":
+				estimateExecutionGasConsumption(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
 }
+func estimateTransferGasConsumption(r *http.Request) {
+	kv := r.URL.Query()
+	r.Method = "POST"
+	dataString := kv.Get("payload")
+	dataString = strings.ReplaceAll(dataString, " ", "+")
+	data, err := base64.StdEncoding.DecodeString(dataString)
+	if err != nil {
+		fmt.Println("b", err)
+		return
+	}
+	type estimateRequest struct {
+		Transfer      *gw.Transfer `json:"transfer,omitempty"`
+		CallerAddress string       `json:"callerAddress,omitempty"`
+	}
 
+	req := &estimateRequest{
+		Transfer: &iotextypes.Transfer{
+			Amount:    kv.Get("amount"),
+			Recipient: kv.Get("recipient"),
+			Payload:   data,
+		},
+		CallerAddress: kv.Get("callerAddress"),
+	}
+
+	reqBytes, err := json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
+	}
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/estimateActionGasConsumption"
+}
+func estimateExecutionGasConsumption(r *http.Request) {
+	kv := r.URL.Query()
+	r.Method = "POST"
+	dataString := kv.Get("data")
+	dataString = strings.ReplaceAll(dataString, " ", "+")
+	data, err := base64.StdEncoding.DecodeString(dataString)
+	if err != nil {
+		fmt.Println("b", err)
+		return
+	}
+	type estimateRequest struct {
+		Execution     *gw.Execution `json:"execution,omitempty"`
+		CallerAddress string        `json:"callerAddress,omitempty"`
+	}
+
+	req := &estimateRequest{
+		Execution: &iotextypes.Execution{
+			Amount:   kv.Get("amount"),
+			Contract: kv.Get("contract"),
+			Data:     data,
+		},
+		CallerAddress: kv.Get("callerAddress"),
+	}
+
+	reqBytes, err := json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
+	}
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/estimateActionGasConsumption"
+}
 func getActionsByBlk(r *http.Request) {
 	kv := r.URL.Query()
 	r.Method = "POST"

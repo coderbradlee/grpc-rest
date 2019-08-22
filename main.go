@@ -78,10 +78,8 @@ func getLogsByBlock(r *http.Request) {
 			Address: []string{kv.Get("address")},
 			Topics:  topic,
 		},
-		Lookup: &gw.GetLogsRequest_ByBlock{
-			ByBlock: &gw.GetLogsByBlock{
-				BlockHash: blockHashBytes,
-			},
+		ByBlock: &gw.GetLogsByBlock{
+			BlockHash: blockHashBytes,
 		},
 		//Lookup: &iotexapi.GetLogsRequest_ByRange{
 		//	ByRange: &iotexapi.GetLogsByRange{

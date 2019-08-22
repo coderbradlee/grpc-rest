@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"io/ioutil"
@@ -41,11 +42,69 @@ func filter(h http.Handler) http.Handler {
 				readContract(r)
 			case "/v1/getLogs/byBlock":
 				getLogsByBlock(r)
+			case "/v1/getLogs/byRange":
+				getLogsByRange(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
+}
+func getLogsByRange(r *http.Request) {
+	kv := r.URL.Query()
+	r.Method = "POST"
+	data := kv.Get("topics")
+	var decodeBytes []byte
+	var err error
+	if !strings.EqualFold(data, "") {
+		decodeBytes, err = base64.StdEncoding.DecodeString(data)
+		if err != nil {
+			fmt.Println("a", err)
+			return
+		}
+	}
+
+	var topic []*gw.Topics
+	if len(decodeBytes) != 0 {
+		topic = []*gw.Topics{
+			&gw.Topics{
+				Topic: [][]byte{decodeBytes},
+			},
+		}
+	}
+	from := kv.Get("fromBlock")
+	fromUint64, err := strconv.ParseUint(from, 10, 64)
+	if err != nil {
+		return
+	}
+	count := kv.Get("count")
+	countUint64, err := strconv.ParseUint(count, 10, 64)
+	if err != nil {
+		return
+	}
+	type reqStruct struct {
+		Filter  *gw.LogsFilter     `json:"filter,omitempty"`
+		ByRange *gw.GetLogsByRange `json:"byRange,omitempty"`
+	}
+	req := &reqStruct{
+		Filter: &gw.LogsFilter{
+			Address: []string{kv.Get("address")},
+			Topics:  topic,
+		},
+		ByRange: &gw.GetLogsByRange{
+			FromBlock: fromUint64,
+			Count:     countUint64,
+		},
+	}
+
+	reqBytes, err := json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
+	}
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/getLogs"
 }
 func getLogsByBlock(r *http.Request) {
 	kv := r.URL.Query()

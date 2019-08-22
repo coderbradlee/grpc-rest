@@ -75,15 +75,11 @@ service APIService {
         get: "/v1/getReceiptByAction"
     };
 }
-
-  // TODO: read contract
+  // read contract
   rpc ReadContract(ReadContractRequest) returns (ReadContractResponse) {
     option (google.api.http) = {
       post: "/v1/readContract"
       body: "*"
-      additional_bindings {
-			get: "/v1/readContract"
-	  }
     };
 }
 

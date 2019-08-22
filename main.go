@@ -33,10 +33,11 @@ func filter(h http.Handler) http.Handler {
 		//		return
 		//	}
 		//}
-
-		switch r.URL.Path {
-		case "/v1/readContract":
-			changeQueryToBody(r)
+		if r.Method == "GET" {
+			switch r.URL.Path {
+			case "/v1/readContract":
+				changeQueryToBody(r)
+			}
 		}
 
 		h.ServeHTTP(w, r)

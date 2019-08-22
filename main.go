@@ -50,12 +50,66 @@ func filter(h http.Handler) http.Handler {
 				getBlockMetas(r, true)
 			case "/v1/getBlockMetas/byHash":
 				getBlockMetas(r, false)
+			case "/v1/sendAction":
+				sendAction(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
 }
+func sendAction(r *http.Request) {
+	//curl -X GET localhost:8081/v1/sendAction?version=1\&nonce=2\&gasLimit=10000\&gasPrice=10\&amount=100\&recipient=io1sxm6zl56um2c3ntq5fwqjar4za5ka560x53muy\&senderPubKey=BOk7WxyPumkmNlKkg61VMY5O7VtRIjFMt/2wd9jHKVCXzsku5QsRCNx0lalyDlkh5W0wSON6vmpnFtfJuRPp8uY=\&signature=9mrqFBggiRocZhkRVUswxs83NaEFNdEYYczI8049vlovHEP4YMQz+3Isznc3CrYaJxAbc2PTIz7y2meerJ8bHAA=
+	//{"action": {"core": {"version": 1, "nonce": 2, "gasLimit": 10000, "gasPrice": "10", "transfer": {"amount": "100", "recipient": "io1sxm6zl56um2c3ntq5fwqjar4za5ka560x53muy"}}, "senderPubKey": "BOk7WxyPumkmNlKkg61VMY5O7VtRIjFMt/2wd9jHKVCXzsku5QsRCNx0lalyDlkh5W0wSON6vmpnFtfJuRPp8uY=", "signature": "9mrqFBggiRocZhkRVUswxs83NaEFNdEYYczI8049vlovHEP4YMQz+3Isznc3CrYaJxAbc2PTIz7y2meerJ8bHAA="}}
+	kv := r.URL.Query()
+	r.Method = "POST"
+	version, err := strconv.ParseUint(kv.Get("verion"), 10, 32)
+	if err != nil {
+		return
+	}
+	nonce, err := strconv.ParseUint(kv.Get("nonce"), 10, 64)
+	if err != nil {
+		return
+	}
+	gasLimit, err := strconv.ParseUint(kv.Get("gasLimit"), 10, 64)
+	if err != nil {
+		return
+	}
+	type sendActionStruct struct {
+		Core         *iotextypes.ActionCore `json:"core,omitempty"`
+		SenderPubKey []byte                 `json:"senderPubKey,omitempty"`
+		Signature    []byte                 `json:"signature,omitempty"`
+	}
+	senderPubKey, err := base64.StdEncoding.DecodeString(kv.Get("senderPubKey"))
+	if err != nil {
+		fmt.Println("b", err)
+		return
+	}
+	signature, err := base64.StdEncoding.DecodeString(kv.Get("signature"))
+	if err != nil {
+		fmt.Println("b", err)
+		return
+	}
+	req := &gw.sendActionStruct{
+		Core: &iotextypes.ActionCore{
+			Version:  version,
+			Nonce:    nonce,
+			GasLimit: gasLimit,
+			GasPrice: kv.Get("gasPrice"),
+		},
+		SenderPubKey: senderPubKey,
+		Signature:    signature,
+	}
+
+	reqBytes, err := json.Marshal(req)
+	if err != nil {
+		fmt.Println("c", err)
+		return
+	}
+	fmt.Println(string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+}
+
 func getBlockMetas(r *http.Request, byIndex bool) {
 	kv := r.URL.Query()
 	r.Method = "POST"

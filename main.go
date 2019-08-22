@@ -31,6 +31,7 @@ func allowCORS(h http.Handler) http.Handler {
 		for k, v := range kv {
 			fmt.Println(k, ":", v)
 		}
+		fmt.Println("empty?")
 		h.ServeHTTP(w, r)
 	})
 }

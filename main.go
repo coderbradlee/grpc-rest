@@ -73,7 +73,11 @@ func getLogsByBlock(r *http.Request) {
 			Topic: [][]byte{decodeBytes},
 		},
 	}
-	req := &gw.GetLogsRequest{
+	type reqStruct struct {
+		Filter  *gw.LogsFilter     `json:"filter,omitempty"`
+		ByBlock *gw.GetLogsByBlock `json:"byBlock,omitempty"`
+	}
+	req := &reqStruct{
 		Filter: &gw.LogsFilter{
 			Address: []string{kv.Get("address")},
 			Topics:  topic,
@@ -88,6 +92,7 @@ func getLogsByBlock(r *http.Request) {
 		//	},
 		//},
 	}
+
 	reqBytes, err := json.Marshal(req)
 	if err != nil {
 		fmt.Println("c", err)

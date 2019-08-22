@@ -74,18 +74,14 @@ func streamlogs(r *http.Request) {
 			},
 		}
 	}
-	address := kv.Get("address")
-
 	type reqStruct struct {
-		Filter  *gw.LogsFilter `json:"filter,omitempty"`
-		Address string         `json:"address,omitempty"`
+		Filter *gw.LogsFilter `json:"filter,omitempty"`
 	}
 	req := &reqStruct{
 		Filter: &gw.LogsFilter{
 			Address: []string{kv.Get("address")},
 			Topics:  topic,
 		},
-		Address: address,
 	}
 
 	reqBytes, err := json.Marshal(req)

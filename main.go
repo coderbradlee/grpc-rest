@@ -116,7 +116,7 @@ func sendTransfer(r *http.Request) {
 		Action *sendActionStruct `json:"action,omitempty"`
 	}
 	req := &SendActionRequest{
-		Action:&sendActionStruct{
+		Action: &sendActionStruct{
 			Core: &actionCore{
 				Version:  uint32(version),
 				Nonce:    nonce,
@@ -130,7 +130,7 @@ func sendTransfer(r *http.Request) {
 			},
 			SenderPubKey: senderPubKey,
 			Signature:    signature,
-		}
+		},
 	}
 
 	reqBytes, err := json.Marshal(req)

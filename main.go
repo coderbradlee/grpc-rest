@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context" // Use "golang.org/x/net/context" for Golang version <= 1.6
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
+
 	"net/http"
 
 	"github.com/golang/glog"
@@ -11,6 +15,7 @@ import (
 	"google.golang.org/grpc"
 
 	gw "github.com/iotexproject/iotex-proto/golang/iotexapi" // Update
+	"github.com/iotexproject/iotex-proto/golang/iotextypes"
 )
 
 var (
@@ -19,7 +24,7 @@ var (
 	grpcServerEndpoint = flag.String("grpc-server-endpoint", "api.testnet.iotex.one:80", "gRPC server endpoint")
 )
 
-func allowCORS(h http.Handler) http.Handler {
+func filter(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//if origin := r.Header.Get("Origin"); origin != "" {
 		//	w.Header().Set("Access-Control-Allow-Origin", origin)
@@ -27,14 +32,38 @@ func allowCORS(h http.Handler) http.Handler {
 		//		return
 		//	}
 		//}
-		fmt.Println(r.URL.Path)
-		kv := r.URL.Query()
-		for k, v := range kv {
-			fmt.Println(k, ":", v)
+
+		switch r.URL.Path {
+		case "/v1/readContract":
+			changeQueryToBody(r)
 		}
-		fmt.Println("empty?")
+
 		h.ServeHTTP(w, r)
 	})
+}
+
+func changeQueryToBody(r *http.Request) {
+	kv := r.URL.Query()
+	for k, v := range kv {
+		fmt.Println(k, ":", v)
+	}
+	fmt.Println("empty?")
+	r.Method = "POST"
+	//{"execution":{"amount":"0","contract":"io1hhu3gwt5uankzl3zlp2cz8w0sl9uj336rq0334","data":"Bv3eAw=="}, "callerAddress": "io1vdtfpzkwpyngzvx7u2mauepnzja7kd5rryp0sg"}
+	req:=gw.ReadContractRequest{
+		Execution:&iotextypes.Execution{
+			Amount:,
+			Contract:kv.Get("data"),
+			Data:kv.Get("data"),
+		},
+		CallerAddress:kv.Get("callerAddress")[0],
+	}
+	reqBytes,err:=json.Marshal(req)
+	if err!=nil{
+		return
+	}
+	fmt.Println("req:",string(reqBytes))
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
 }
 func run() error {
 	ctx := context.Background()
@@ -54,7 +83,7 @@ func run() error {
 	//return http.ListenAndServe(":8081", mux)
 	s := &http.Server{
 		Addr:    ":8081",
-		Handler: allowCORS(mux),
+		Handler: filter(mux),
 	}
 	return s.ListenAndServe()
 

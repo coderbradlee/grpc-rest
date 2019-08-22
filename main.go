@@ -51,9 +51,9 @@ func filter(h http.Handler) http.Handler {
 			case "/v1/getBlockMetas/byHash":
 				getBlockMetas(r, false)
 			case "/v1/sendAction/transfer":
-				sendTransfer(r)
+				sendTransfer(r, false)
 			case "/v1/sendAction/execution":
-				sendExecution(r)
+				sendExecution(r, false)
 			case "/v1/getActions/byIndex":
 				getActionsByIndex(r)
 			case "/v1/getActions/byHash":
@@ -64,12 +64,17 @@ func filter(h http.Handler) http.Handler {
 				getActionsUnconfirmedByAddr(r)
 			case "/v1/getActions/byBlk":
 				getActionsByBlk(r)
+			case "/v1/estimateGasForAction/transfer":
+				sendTransfer(r, true)
+			case "/v1/estimateGasForAction/execution":
+				sendExecution(r, true)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
 }
+
 func getActionsByBlk(r *http.Request) {
 	kv := r.URL.Query()
 	r.Method = "POST"
@@ -233,7 +238,7 @@ func getActionsByIndex(r *http.Request) {
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
 	r.URL.Path = "/v1/getActions"
 }
-func sendExecution(r *http.Request) {
+func sendExecution(r *http.Request, estimate bool) {
 	kv := r.URL.Query()
 	r.Method = "POST"
 	version, err := strconv.ParseUint(kv.Get("version"), 10, 32)
@@ -314,8 +319,11 @@ func sendExecution(r *http.Request) {
 	fmt.Println(string(reqBytes))
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
 	r.URL.Path = "/v1/sendAction"
+	if estimate {
+		r.URL.Path = "/v1/estimateGasForAction"
+	}
 }
-func sendTransfer(r *http.Request) {
+func sendTransfer(r *http.Request, estimate bool) {
 	kv := r.URL.Query()
 	r.Method = "POST"
 	version, err := strconv.ParseUint(kv.Get("version"), 10, 32)
@@ -396,6 +404,9 @@ func sendTransfer(r *http.Request) {
 	fmt.Println(string(reqBytes))
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
 	r.URL.Path = "/v1/sendAction"
+	if estimate {
+		r.URL.Path = "/v1/estimateGasForAction"
+	}
 }
 
 func getBlockMetas(r *http.Request, byIndex bool) {

@@ -89,8 +89,8 @@ func estimateTransferGasConsumption(r *http.Request) {
 		return
 	}
 	type estimateRequest struct {
-		Transfer      *gw.Transfer `json:"transfer,omitempty"`
-		CallerAddress string       `json:"callerAddress,omitempty"`
+		Transfer      *iotextypes.Transfer `json:"transfer,omitempty"`
+		CallerAddress string               `json:"callerAddress,omitempty"`
 	}
 
 	req := &estimateRequest{
@@ -122,8 +122,8 @@ func estimateExecutionGasConsumption(r *http.Request) {
 		return
 	}
 	type estimateRequest struct {
-		Execution     *gw.Execution `json:"execution,omitempty"`
-		CallerAddress string        `json:"callerAddress,omitempty"`
+		Execution     *iotextypes.Execution `json:"execution,omitempty"`
+		CallerAddress string                `json:"callerAddress,omitempty"`
 	}
 
 	req := &estimateRequest{

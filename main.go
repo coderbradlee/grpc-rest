@@ -65,10 +65,18 @@ func getBlockMetas(r *http.Request, byIndex bool) {
 		type byIndexStruct struct {
 			ByIndex *gw.GetBlockMetasByIndexRequest `json:"byIndex,omitempty"`
 		}
+		start, err := strconv.ParseUint(kv.Get("start"), 10, 64)
+		if err != nil {
+			return
+		}
+		count, err := strconv.ParseUint(kv.Get("count"), 10, 64)
+		if err != nil {
+			return
+		}
 		req := &byIndexStruct{
 			ByIndex: &gw.GetBlockMetasByIndexRequest{
-				Start: kv.Get("start"),
-				Count: kv.Get("count"),
+				Start: start,
+				Count: count,
 			},
 		}
 		reqBytes, err = json.Marshal(req)

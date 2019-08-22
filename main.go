@@ -104,6 +104,7 @@ func getLogsByBlock(r *http.Request) {
 	}
 	fmt.Println(string(reqBytes))
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/getLogs"
 }
 func readContract(r *http.Request) {
 	kv := r.URL.Query()

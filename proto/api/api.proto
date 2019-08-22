@@ -81,6 +81,9 @@ service APIService {
     option (google.api.http) = {
       post: "/v1/readContract"
       body: "*"
+      additional_bindings {
+			get: "/v1/readContract"
+	  }
     };
 }
 

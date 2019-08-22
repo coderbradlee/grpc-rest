@@ -10,6 +10,7 @@ package iotexapi
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -511,6 +512,29 @@ func RegisterAPIServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_APIService_GetReceiptByAction_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_APIService_ReadContract_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		for k,v:=range pathParams{
+			fmt.Println(k,":",v)
+		}
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_APIService_ReadContract_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_APIService_ReadContract_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 

@@ -27,6 +27,7 @@ func allowCORS(h http.Handler) http.Handler {
 		//		return
 		//	}
 		//}
+		fmt.Println(r.URL.Path)
 		kv := r.URL.Query()
 		for k, v := range kv {
 			fmt.Println(k, ":", v)

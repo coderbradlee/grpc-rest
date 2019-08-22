@@ -52,10 +52,12 @@ func getLogsByBlock(r *http.Request) {
 	data := kv.Get("topics")
 	decodeBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	blockHashBytes, err := base64.StdEncoding.DecodeString(kv.Get("blockHash"))
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	topic := []*gw.Topics{
@@ -82,6 +84,7 @@ func getLogsByBlock(r *http.Request) {
 	}
 	reqBytes, err := json.Marshal(req)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	fmt.Println(string(reqBytes))

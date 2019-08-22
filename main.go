@@ -10,7 +10,6 @@ import (
 
 	"io/ioutil"
 
-
 	"net/http"
 
 	"github.com/golang/glog"
@@ -66,7 +65,7 @@ func getLogsByBlock(r *http.Request) {
 	}
 	req := &gw.GetLogsRequest{
 		Filter: &gw.LogsFilter{
-			Address: []string{kv.Get("address")}),
+			Address: []string{kv.Get("address")},
 			Topics:  topic,
 		},
 		Lookup: &gw.GetLogsRequest_ByBlock{

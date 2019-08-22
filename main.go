@@ -50,38 +50,45 @@ func filter(h http.Handler) http.Handler {
 				getBlockMetas(r, true)
 			case "/v1/getBlockMetas/byHash":
 				getBlockMetas(r, false)
-			case "/v1/sendAction":
-				sendAction(r)
+			case "/v1/sendAction/transfer":
+				sendTransfer(r)
 			}
 		}
 
 		h.ServeHTTP(w, r)
 	})
 }
-func sendAction(r *http.Request) {
+func sendTransfer(r *http.Request) {
 	//curl -X GET localhost:8081/v1/sendAction?version=1\&nonce=2\&gasLimit=10000\&gasPrice=10\&amount=100\&recipient=io1sxm6zl56um2c3ntq5fwqjar4za5ka560x53muy\&senderPubKey=BOk7WxyPumkmNlKkg61VMY5O7VtRIjFMt/2wd9jHKVCXzsku5QsRCNx0lalyDlkh5W0wSON6vmpnFtfJuRPp8uY=\&signature=9mrqFBggiRocZhkRVUswxs83NaEFNdEYYczI8049vlovHEP4YMQz+3Isznc3CrYaJxAbc2PTIz7y2meerJ8bHAA=
 	//{"action": {"core": {"version": 1, "nonce": 2, "gasLimit": 10000, "gasPrice": "10", "transfer": {"amount": "100", "recipient": "io1sxm6zl56um2c3ntq5fwqjar4za5ka560x53muy"}}, "senderPubKey": "BOk7WxyPumkmNlKkg61VMY5O7VtRIjFMt/2wd9jHKVCXzsku5QsRCNx0lalyDlkh5W0wSON6vmpnFtfJuRPp8uY=", "signature": "9mrqFBggiRocZhkRVUswxs83NaEFNdEYYczI8049vlovHEP4YMQz+3Isznc3CrYaJxAbc2PTIz7y2meerJ8bHAA="}}
 	kv := r.URL.Query()
 	r.Method = "POST"
-	version, err := strconv.ParseUint(kv.Get("verion"), 10, 32)
+	version, err := strconv.ParseUint(kv.Get("version"), 10, 32)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("version:", err)
 		return
 	}
 	nonce, err := strconv.ParseUint(kv.Get("nonce"), 10, 64)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("nonce:", err)
 		return
 	}
 	gasLimit, err := strconv.ParseUint(kv.Get("gasLimit"), 10, 64)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("gaslimit:", err)
 		return
 	}
 	type sendActionStruct struct {
-		Core         *iotextypes.ActionCore `json:"core,omitempty"`
-		SenderPubKey []byte                 `json:"senderPubKey,omitempty"`
-		Signature    []byte                 `json:"signature,omitempty"`
+		Core         *core  `json:"core,omitempty"`
+		SenderPubKey []byte `json:"senderPubKey,omitempty"`
+		Signature    []byte `json:"signature,omitempty"`
+	}
+	type core struct {
+		Version  uint32               `json:"version,omitempty"`
+		Nonce    uint64               `json:"nonce,omitempty"`
+		GasLimit uint64               `json:"gasLimit,omitempty"`
+		GasPrice string               `json:"gasPrice,omitempty"`
+		Transfer *iotextypes.Transfer `json:"transfer,omitempty"`
 	}
 	senderPubKey, err := base64.StdEncoding.DecodeString(kv.Get("senderPubKey"))
 	if err != nil {
@@ -93,12 +100,22 @@ func sendAction(r *http.Request) {
 		fmt.Println("b", err)
 		return
 	}
+	payload, err := base64.StdEncoding.DecodeString(kv.Get("payload"))
+	if err != nil {
+		fmt.Println("b", err)
+		return
+	}
 	req := &sendActionStruct{
-		Core: &iotextypes.ActionCore{
+		Core: &core{
 			Version:  uint32(version),
 			Nonce:    nonce,
 			GasLimit: gasLimit,
 			GasPrice: kv.Get("gasPrice"),
+			Transfer: &iotextypes.Transfer{
+				Amount:    kv.Get("amount"),
+				Recipient: kv.Get("recipient"),
+				Payload:   payload,
+			},
 		},
 		SenderPubKey: senderPubKey,
 		Signature:    signature,
@@ -111,6 +128,7 @@ func sendAction(r *http.Request) {
 	}
 	fmt.Println(string(reqBytes))
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
+	r.URL.Path = "/v1/sendAction"
 }
 
 func getBlockMetas(r *http.Request, byIndex bool) {

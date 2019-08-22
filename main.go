@@ -92,7 +92,7 @@ func sendAction(r *http.Request) {
 	}
 	req := &sendActionStruct{
 		Core: &iotextypes.ActionCore{
-			Version:  version,
+			Version:  uint32(version),
 			Nonce:    nonce,
 			GasLimit: gasLimit,
 			GasPrice: kv.Get("gasPrice"),

@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+
 	"io/ioutil"
 
-	"github.com/lzxm160/grpc-rest/golang/iotexapi"
 
 	"net/http"
 
@@ -59,18 +59,18 @@ func getLogsByBlock(r *http.Request) {
 	if err != nil {
 		return
 	}
-	topic := []*iotexapi.Topics{
-		&iotexapi.Topics{
+	topic := []*gw.Topics{
+		&gw.Topics{
 			Topic: [][]byte{decodeBytes},
 		},
 	}
-	req := &iotexapi.GetLogsRequest{
-		Filter: &iotexapi.LogsFilter{
-			Address: []string{kv.Get("address"}),
+	req := &gw.GetLogsRequest{
+		Filter: &gw.LogsFilter{
+			Address: []string{kv.Get("address")}),
 			Topics:  topic,
 		},
-		Lookup: &iotexapi.GetLogsRequest_ByBlock{
-			ByBlock: &iotexapi.GetLogsByBlock{
+		Lookup: &gw.GetLogsRequest_ByBlock{
+			ByBlock: &gw.GetLogsByBlock{
 				BlockHash: blockHashBytes,
 			},
 		},

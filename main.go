@@ -107,7 +107,7 @@ func sendTransfer(r *http.Request) {
 		return
 	}
 	req := &sendActionStruct{
-		Core: &core{
+		Core: &actionCore{
 			Version:  uint32(version),
 			Nonce:    nonce,
 			GasLimit: gasLimit,

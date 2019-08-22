@@ -78,11 +78,6 @@ func sendTransfer(r *http.Request) {
 		fmt.Println("gaslimit:", err)
 		return
 	}
-	type sendActionStruct struct {
-		Core         *actionCore `json:"core,omitempty"`
-		SenderPubKey []byte      `json:"senderPubKey,omitempty"`
-		Signature    []byte      `json:"signature,omitempty"`
-	}
 	type actionCore struct {
 		Version  uint32               `json:"version,omitempty"`
 		Nonce    uint64               `json:"nonce,omitempty"`
@@ -90,6 +85,12 @@ func sendTransfer(r *http.Request) {
 		GasPrice string               `json:"gasPrice,omitempty"`
 		Transfer *iotextypes.Transfer `json:"transfer,omitempty"`
 	}
+	type sendActionStruct struct {
+		Core         *actionCore `json:"core,omitempty"`
+		SenderPubKey []byte      `json:"senderPubKey,omitempty"`
+		Signature    []byte      `json:"signature,omitempty"`
+	}
+
 	senderPubKey, err := base64.StdEncoding.DecodeString(kv.Get("senderPubKey"))
 	if err != nil {
 		fmt.Println("b", err)

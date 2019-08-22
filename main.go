@@ -50,19 +50,19 @@ func changeQueryToBody(r *http.Request) {
 	fmt.Println("empty?")
 	r.Method = "POST"
 	//{"execution":{"amount":"0","contract":"io1hhu3gwt5uankzl3zlp2cz8w0sl9uj336rq0334","data":"Bv3eAw=="}, "callerAddress": "io1vdtfpzkwpyngzvx7u2mauepnzja7kd5rryp0sg"}
-	req:=gw.ReadContractRequest{
-		Execution:&iotextypes.Execution{
-			Amount:,
-			Contract:kv.Get("data"),
-			Data:kv.Get("data"),
+	req := gw.ReadContractRequest{
+		Execution: &iotextypes.Execution{
+			Amount:   kv.Get("amount")[0],
+			Contract: kv.Get("data")[0],
+			Data:     kv.Get("data")[0],
 		},
-		CallerAddress:kv.Get("callerAddress")[0],
+		CallerAddress: kv.Get("callerAddress")[0],
 	}
-	reqBytes,err:=json.Marshal(req)
-	if err!=nil{
+	reqBytes, err := json.Marshal(req)
+	if err != nil {
 		return
 	}
-	fmt.Println("req:",string(reqBytes))
+	fmt.Println("req:", string(reqBytes))
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(reqBytes))
 }
 func run() error {

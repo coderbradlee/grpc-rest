@@ -65,14 +65,17 @@ func sendAction(r *http.Request) {
 	r.Method = "POST"
 	version, err := strconv.ParseUint(kv.Get("verion"), 10, 32)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	nonce, err := strconv.ParseUint(kv.Get("nonce"), 10, 64)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	gasLimit, err := strconv.ParseUint(kv.Get("gasLimit"), 10, 64)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	type sendActionStruct struct {

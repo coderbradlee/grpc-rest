@@ -66,7 +66,7 @@ func getLogsByBlock(r *http.Request) {
 	}
 	req := &iotexapi.GetLogsRequest{
 		Filter: &iotexapi.LogsFilter{
-			Address: []string(kv.Get("address")),
+			Address: []string{kv.Get("address"}),
 			Topics:  topic,
 		},
 		Lookup: &iotexapi.GetLogsRequest_ByBlock{

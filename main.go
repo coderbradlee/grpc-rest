@@ -79,11 +79,11 @@ func sendTransfer(r *http.Request) {
 		return
 	}
 	type sendActionStruct struct {
-		Core         *core  `json:"core,omitempty"`
-		SenderPubKey []byte `json:"senderPubKey,omitempty"`
-		Signature    []byte `json:"signature,omitempty"`
+		Core         *actionCore `json:"core,omitempty"`
+		SenderPubKey []byte      `json:"senderPubKey,omitempty"`
+		Signature    []byte      `json:"signature,omitempty"`
 	}
-	type core struct {
+	type actionCore struct {
 		Version  uint32               `json:"version,omitempty"`
 		Nonce    uint64               `json:"nonce,omitempty"`
 		GasLimit uint64               `json:"gasLimit,omitempty"`

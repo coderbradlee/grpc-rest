@@ -60,8 +60,9 @@ func getLogsByBlock(r *http.Request) {
 			return
 		}
 	}
-
-	blockHashBytes, err := base64.StdEncoding.DecodeString(kv.Get("blockHash"))
+	blockHashString := kv.Get("blockHash")
+	fmt.Println(blockHashString)
+	blockHashBytes, err := base64.StdEncoding.DecodeString(blockHashString)
 	if err != nil {
 		fmt.Println("b", err)
 		return

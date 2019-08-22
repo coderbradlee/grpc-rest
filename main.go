@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context" // Use "golang.org/x/net/context" for Golang version <= 1.6
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -50,11 +51,16 @@ func changeQueryToBody(r *http.Request) {
 	fmt.Println("empty?")
 	r.Method = "POST"
 	//{"execution":{"amount":"0","contract":"io1hhu3gwt5uankzl3zlp2cz8w0sl9uj336rq0334","data":"Bv3eAw=="}, "callerAddress": "io1vdtfpzkwpyngzvx7u2mauepnzja7kd5rryp0sg"}
+	data := kv.Get("data")
+	decodeBytes, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return
+	}
 	req := gw.ReadContractRequest{
 		Execution: &iotextypes.Execution{
 			Amount:   kv.Get("amount"),
-			Contract: kv.Get("data"),
-			Data:     kv.Get("data"),
+			Contract: kv.Get("contract"),
+			Data:     decodeBytes,
 		},
 		CallerAddress: kv.Get("callerAddress"),
 	}
